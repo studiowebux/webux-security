@@ -19,6 +19,7 @@ const compression = require("compression");
 
 const Init = (app, options) => {
   require("./components/bodyParser")(app, options.bodyParser);
+  require("./components/cookieParser")(app, options.cookieParser);
   app.use(require("./components/cors")(options.origin));
   app.use(require("./components/morgan")(options.morgan));
   app.use(require("./components/regex")());
