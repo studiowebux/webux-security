@@ -1,6 +1,6 @@
 {
   "name": "webux-security",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "This module is a wrapper for all the security stuff around the framework",
   "main": "index.js",
   "scripts": {
