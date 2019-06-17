@@ -13,6 +13,9 @@ const options = {
     limit: "10mb",
     extended: true
   },
+  cookieParser: {
+    secret: "Hey !"
+  },
   morgan: {// combined, tiny, dev, common, short, json
     type: "json"
   },
@@ -31,8 +34,6 @@ const options = {
   }
 };
 
-const express = require("express");
-const app = express();
 const { CreateApp, Webux } = require("webux-app");
 const webuxserver = require("webux-server");
 
@@ -41,11 +42,11 @@ CreateApp(options);
 
 Webux.log.info("This is a test with a global variable !");
 
-require("../index")(app, options);
+require("../index")(Webux, options);
 
-app.get("/", (req, res) => {
+Webux.app.get("/", (req, res) => {
   Webux.log.info("Hello World !");
-  return res.status(200).json({ msg: "Bonjour !" });
+  return res.success({ msg: "Bonjour !" });
 });
 
-webuxserver(options, app); // start the server
+webuxserver(options, Webux.app); // start the server

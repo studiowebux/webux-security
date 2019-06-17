@@ -16,7 +16,6 @@
 
 const morgan = require("morgan");
 const json = require("morgan-json");
-const { Webux } = require("webux-app");
 
 const jsonFormat = json({
   method: ":method",
@@ -26,15 +25,15 @@ const jsonFormat = json({
   "response-time": ":response-time ms"
 });
 
-module.exports = options => {
+module.exports = (log, options) => {
   if (options.type === "json") {
     return morgan(jsonFormat, {
       // combined, tiny, dev, common, short, json
-      stream: Webux.log.stream
+      stream: log.stream
     });
   }
   return morgan(options.type, {
     // combined, tiny, dev, common, short
-    stream: Webux.log.stream
+    stream: log.stream
   });
 };

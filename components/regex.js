@@ -17,17 +17,20 @@
 const safe = require("safe-regex");
 const webuxIP = require("webux-ip");
 
-module.exports = () => {
+module.exports = errorHandler => {
   return (req, res, next) => {
     if (safe(req.params) && safe(req.query) && safe(req.body)) {
       return next();
     } else {
       const ip = webuxIP(req);
-      return next({
-        message: i18n.__("REGEX_ERROR"),
-        devMessage: ip,
-        error: err
-      });
+      return next(
+        errorHandler(
+          422,
+          "REGEX_ERROR",
+          { ip: ip },
+          "Error catch within the safe regex"
+        )
+      );
     }
   };
 };

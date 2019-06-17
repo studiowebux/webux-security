@@ -15,9 +15,8 @@
 "use strict";
 
 const cors = require("cors");
-const { Webux } = require("webux-app");
 
-module.exports = (allowedOrigin) => {
+module.exports = (log, allowedOrigin) => {
   // cors setup
   const corsOptions = {
     origin: function(reqOrigin, callback) {
@@ -35,7 +34,7 @@ module.exports = (allowedOrigin) => {
   if (process.env.NODE_ENV === "production") {
     return cors(corsOptions);
   } else {
-    Webux.log.warn("CORS disabled.");
+    log.warn("CORS disabled.");
     return cors("*");
   }
 };
