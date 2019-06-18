@@ -16,6 +16,6 @@
 
 const cookieParser = require("cookie-parser");
 
-module.exports = (app, options) => {
-  app.use(cookieParser(options.secret));
+module.exports = (options) => {
+  return cookieParser(options.secret);
 };
