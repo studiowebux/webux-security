@@ -16,9 +16,6 @@ const options = {
   cookieParser: {
     secret: "Hey !"
   },
-  morgan: {// combined, tiny, dev, common, short, json
-    type: "json"
-  },
   origin: "*",
   logger: {
     application_id: "Test01",

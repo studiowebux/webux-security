@@ -14,7 +14,6 @@
     "morgan": "^1.9.1",
     "morgan-json": "^1.1.0",
     "node-statsd": "^0.1.1",
-    "response-time": "^2.3.2",
     "safe-regex": "^2.0.2",
     "webux-ip": "^1.0.0"
   }

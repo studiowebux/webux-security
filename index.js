@@ -21,9 +21,7 @@ const Init = (app, options, log, errorHandler) => {
   require("./components/bodyParser")(app, options.bodyParser);
   app.use(require("./components/cookieParser")(options.cookieParser));
   app.use(require("./components/cors")(log, options.origin));
-  app.use(require("./components/morgan")(log, options.morgan));
   app.use(require("./components/regex")(errorHandler));
-  app.use(require("./components/responseTime")(log));
   app.use(require("./components/headers"));
   app.use(compression());
   app.enable("trust proxy");
