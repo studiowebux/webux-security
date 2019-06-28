@@ -17,15 +17,29 @@
 const helmet = require("helmet");
 const compression = require("compression");
 
-const Init = (app, options, log, errorHandler) => {
-  require("./components/bodyParser")(app, options.bodyParser);
-  app.use(require("./components/cookieParser")(options.cookieParser));
-  app.use(require("./components/cors")(log, options.origin));
-  app.use(require("./components/regex")(errorHandler));
-  app.use(require("./components/headers"));
+/**
+ * Initialise all the security modules in the app.
+ * @param {Object} options The configuration of the module, Mandatory
+ * @param {Function} app The express application, Mandatory
+ * @param {object} log The log function, optional, by default console
+ * @return {VoidFunction} Return nothing.
+ */
+const Init = (options, app, log = console) => {
+  if (!options || typeof options !== "object") {
+    throw new Error("The options is required and must be an object.");
+  }
+  if (!app || typeof app !== "function") {
+    throw new Error("The app is required and must be an express object.");
+  }
+
+  require("./components/bodyParser")(options.bodyParser, app, log);
+  require("./components/cors")(options.origin || [], app, log);
+  
+  app.use(require("./components/cookieParser")(options.cookieParser, log));
+  app.use(require("./components/headers")(options, log));
   app.use(compression());
   app.enable("trust proxy");
-  app.set("trust proxy", true);
+  app.set("trust proxy", options.trustProxy || false);
   app.use(helmet());
   app.disable("x-powered-by");
 };
