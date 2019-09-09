@@ -16,6 +16,17 @@
 
 const cookieParser = require("cookie-parser");
 
-module.exports = (options) => {
+/**
+ * Initialise the cookie-parser
+ * @param {Object} options The configuration of the module, Mandatory
+ * @param {Object} log The log function, optional, by default console
+ * @return {VoidFunction} Return the cookieParser
+ */
+module.exports = (options, log = console) => {
+  if (!options || typeof options !== "object") {
+    throw new Error("The options is required and must be an object.");
+  }
+
+  log.info("Configuring cookie parser");
   return cookieParser(options.secret);
 };

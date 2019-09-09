@@ -16,25 +16,40 @@
 
 const cors = require("cors");
 
-module.exports = (log, allowedOrigin) => {
-  // cors setup
+/**
+ * Configure the cors
+ * @param {Array} whitelist The allowed endpoints to the API, Mandatory
+ * @param {Function} app The express application, Mandatory
+ * @param {Object} log The log function, optional, by default console
+ * @return {Object} Return the cors.
+ */
+module.exports = (whitelist, app, log = console) => {
+  if (!whitelist || typeof whitelist !== "object") {
+    throw new Error("The allowed origins are required and must be an array.");
+  }
+
+  if (!app || typeof app !== "function") {
+    throw new Error("The app is required and must be an express object.");
+  }
+
   const corsOptions = {
-    origin: function(reqOrigin, callback) {
-      if (allowedOrigin.indexOf(reqOrigin) !== -1) {
+    origin: function(origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
         return callback(null, true);
+      } else if (!origin) {
+        log.warn("No origin is set for the request.");
+        return callback("Not allowed by CORS.", false);
       } else {
-        throw new Error(
-          "Not allowed by CORS : " + reqOrigin + " Not In " + allowedOrigin
-        );
+        return callback("Not allowed by CORS.", false);
       }
     }
   };
-
   // Then pass them to cors:
   if (process.env.NODE_ENV === "production") {
-    return cors(corsOptions);
+    log.info("CORS enabled. Allowed origins : " + whitelist);
+    app.use(cors(corsOptions));
   } else {
     log.warn("CORS disabled.");
-    return cors("*");
+    app.use(cors());
   }
 };

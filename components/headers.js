@@ -12,13 +12,22 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-'use strict';
+"use strict";
 
-module.exports = (req, res, next) => {
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-with, Accept, Authorization, Content-Type, Accept-Language, refresh, lang'
-  );
-  next();
+/**
+ * Configure the Header
+ * @param {Object} options The configuration of the module, Mandatory
+ * @param {Object} log The log function, optional, by default console
+ * @return {VoidFunction} Return nothing.
+ */
+module.exports = (options, log = console) => {
+  if (!options || typeof options !== "object") {
+    throw new Error("The options is required and must be an object.");
+  }
+  log.info("Set the headers");
+  return (req, res, next) => {
+    res.header("Access-Control-Allow-Methods", options.allowedMethods);
+    res.header("Access-Control-Allow-Headers", options.allowedHeaders);
+    return next();
+  };
 };
