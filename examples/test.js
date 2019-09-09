@@ -9,6 +9,7 @@ const options = {
   origin: ["127.0.0.1"],
   trustProxy: true,
   allowedMethods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+  allowedCredentials: true,
   allowedHeaders:
     "Origin, X-Requested-with, Accept, Authorization, Content-Type, Accept-Language, refresh, lang"
 };

@@ -45,7 +45,7 @@ module.exports = (whitelist, app, log = console) => {
     }
   };
   // Then pass them to cors:
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" || whitelist.length > 0) {
     log.info("CORS enabled. Allowed origins : " + whitelist);
     app.use(cors(corsOptions));
   } else {

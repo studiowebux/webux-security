@@ -28,6 +28,7 @@ module.exports = (options, log = console) => {
   return (req, res, next) => {
     res.header("Access-Control-Allow-Methods", options.allowedMethods);
     res.header("Access-Control-Allow-Headers", options.allowedHeaders);
+    res.header("Access-Control-Allow-Credentials", options.allowedCredentials);
     return next();
   };
 };
