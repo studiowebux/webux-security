@@ -38,9 +38,9 @@ module.exports = (whitelist, app, log = console) => {
         return callback(null, true);
       } else if (!origin) {
         log.warn("No origin is set for the request.");
-        return callback("Not allowed by CORS.", false);
+        return callback(new Error("Not allowed by CORS."));
       } else {
-        return callback("Not allowed by CORS.", false);
+        return callback(new Error("Not allowed by CORS."));
       }
     }
   };
