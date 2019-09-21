@@ -6,7 +6,6 @@ const options = {
   cookieParser: {
     secret: "Hey !"
   },
-  origin: ["127.0.0.1"],
   trustProxy: true,
   allowedMethods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   allowedCredentials: true,

@@ -23,10 +23,6 @@ const cookieParser = require("cookie-parser");
  * @return {VoidFunction} Return the cookieParser
  */
 module.exports = (options, log = console) => {
-  if (!options || typeof options !== "object") {
-    throw new Error("The options is required and must be an object.");
-  }
-
-  log.info("Configuring cookie parser");
+  log.info("\x1b[33m", "webux-security - Configuring cookie parser", "\x1b[0m");
   return cookieParser(options.secret);
 };

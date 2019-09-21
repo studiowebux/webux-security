@@ -24,14 +24,11 @@ const bodyParser = require("body-parser");
  * @return {VoidFunction} Return nothing
  */
 module.exports = (options, app, log = console) => {
-  if (!options || typeof options !== "object") {
-    throw new Error("The options is required and must be an object.");
-  }
-  if (!app || typeof app !== "function") {
-    throw new Error("The app is required and must be an express object.");
-  }
-
-  log.info("Configuring the body parser");
+  log.info(
+    "\x1b[33m",
+    "webux-security - Configuring the body parser",
+    "\x1b[0m"
+  );
 
   app.use(
     bodyParser.json({

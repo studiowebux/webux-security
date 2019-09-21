@@ -25,23 +25,34 @@ const compression = require("compression");
  * @return {VoidFunction} Return nothing.
  */
 const Init = (options, app, log = console) => {
-  if (!options || typeof options !== "object") {
-    throw new Error("The options is required and must be an object.");
-  }
-  if (!app || typeof app !== "function") {
-    throw new Error("The app is required and must be an express object.");
-  }
+  return new Promise((resolve, reject) => {
+    try {
+      log.info(
+        "\x1b[33m",
+        "webux-security - Initialize the security components",
+        "\x1b[0m"
+      );
+      require("./components/bodyParser")(options.bodyParser, app, log);
+      require("./components/cors")(options.origin || [], app, log);
 
-  require("./components/bodyParser")(options.bodyParser, app, log);
-  require("./components/cors")(options.origin || [], app, log);
-  
-  app.use(require("./components/cookieParser")(options.cookieParser, log));
-  app.use(require("./components/headers")(options, log));
-  app.use(compression());
-  app.enable("trust proxy");
-  app.set("trust proxy", options.trustProxy || false);
-  app.use(helmet());
-  app.disable("x-powered-by");
+      app.use(require("./components/cookieParser")(options.cookieParser, log));
+      app.use(require("./components/headers")(options, log));
+      app.use(compression());
+      app.enable("trust proxy");
+      app.set("trust proxy", options.trustProxy || false);
+      app.use(helmet());
+      app.disable("x-powered-by");
+
+      log.info(
+        "\x1b[33m",
+        "webux-security - Security components initialized",
+        "\x1b[0m"
+      );
+      resolve();
+    } catch (e) {
+      throw e;
+    }
+  });
 };
 
 module.exports = Init;
