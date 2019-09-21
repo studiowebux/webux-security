@@ -28,9 +28,7 @@ const Init = (options, app, log = console) => {
   return new Promise((resolve, reject) => {
     try {
       log.info(
-        "\x1b[33m",
-        "webux-security - Initialize the security components",
-        "\x1b[0m"
+        `\x1b[33mwebux-security - Initialize the security components\x1b[0m`
       );
       require("./components/bodyParser")(options.bodyParser, app, log);
       require("./components/cors")(options.origin || [], app, log);
@@ -44,9 +42,7 @@ const Init = (options, app, log = console) => {
       app.disable("x-powered-by");
 
       log.info(
-        "\x1b[33m",
-        "webux-security - Security components initialized",
-        "\x1b[0m"
+        `\x1b[33mwebux-security - Security components initialized\x1b[0m`
       );
       resolve();
     } catch (e) {

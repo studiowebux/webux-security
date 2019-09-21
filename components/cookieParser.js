@@ -23,6 +23,6 @@ const cookieParser = require("cookie-parser");
  * @return {VoidFunction} Return the cookieParser
  */
 module.exports = (options, log = console) => {
-  log.info("\x1b[33m", "webux-security - Configuring cookie parser", "\x1b[0m");
+  log.info(`\x1b[33mwebux-security - Configuring cookie parser\x1b[0m`);
   return cookieParser(options.secret);
 };

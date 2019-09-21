@@ -25,9 +25,7 @@ const bodyParser = require("body-parser");
  */
 module.exports = (options, app, log = console) => {
   log.info(
-    "\x1b[33m",
-    "webux-security - Configuring the body parser",
-    "\x1b[0m"
+    `\x1b[33mwebux-security - Configuring the body parser\x1b[0m`
   );
 
   app.use(
