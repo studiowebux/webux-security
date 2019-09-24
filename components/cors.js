@@ -26,6 +26,9 @@ const cors = require("cors");
 module.exports = (whitelist, app, log = console) => {
   const corsOptions = {
     origin: function(origin, callback) {
+      console.log(origin)
+      console.log(whitelist)
+      log.debug("Request from : " + origin)
       if (whitelist.indexOf(origin) !== -1) {
         return callback(null, true);
       } else if (!origin) {
@@ -41,7 +44,7 @@ module.exports = (whitelist, app, log = console) => {
   // Then pass them to cors:
   if (process.env.NODE_ENV === "production" || whitelist.length > 0) {
     log.info(
-      `ﬂ\x1b[33mwebux-security - CORS enabled. Allowed origins : ${whitelist}\x1b[0m`
+      `\x1b[33mwebux-security - CORS enabled. Allowed origins : ${whitelist}\x1b[0m`
     );
     app.use(cors(corsOptions));
   } else {
