@@ -21,9 +21,8 @@
  * @return {VoidFunction} Return nothing.
  */
 module.exports = (options, log = console) => {
-  log.info(`\x1b[33mwebux-security - Set the response headers\x1b[0m`);
+  log.info(`\x1b[33mwebux-security - Set the response header\x1b[0m`);
   return (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", options.origin);
     res.header("Access-Control-Allow-Methods", options.allowedMethods);
     res.header("Access-Control-Allow-Headers", options.allowedHeaders);
     res.header("Access-Control-Allow-Credentials", options.allowedCredentials);

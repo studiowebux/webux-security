@@ -3,6 +3,7 @@ const options = {
     limit: "10mb",
     extended: true
   },
+  origin: [],
   cookieParser: {
     secret: "Hey !"
   },
@@ -35,7 +36,7 @@ async function loadApp() {
       res.status(401).json({ msg: error.message });
     });
 
-    app.listen(1337, () => {
+    app.listen(1340, () => {
       console.log("Server listening on port 1337");
     });
   } catch (e) {

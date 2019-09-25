@@ -26,7 +26,6 @@ const cors = require("cors");
 module.exports = (whitelist, app, log = console) => {
   const corsOptions = {
     origin: function(origin, callback) {
-      log.debug(origin);
       log.debug(whitelist);
       log.debug("Request from : " + origin);
       if (whitelist.indexOf(origin) !== -1) {
@@ -36,7 +35,6 @@ module.exports = (whitelist, app, log = console) => {
           `\x1b[31mwebux-security - No origin is set for the request.\x1b[0m`
         );
         return callback(null, true);
-        // return callback(new Error("Not allowed by CORS."));
       } else {
         return callback(new Error("Not allowed by CORS."));
       }

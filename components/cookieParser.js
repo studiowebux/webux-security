@@ -24,5 +24,6 @@ const cookieParser = require("cookie-parser");
  */
 module.exports = (options, log = console) => {
   log.info(`\x1b[33mwebux-security - Configuring cookie parser\x1b[0m`);
+  log.warn(`\x1b[31mwebux-security - You should set a cookie secret\x1b[0m`);
   return cookieParser(options.secret);
 };
