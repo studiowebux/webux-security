@@ -6,7 +6,7 @@ In the component folder, you can add everything you need.
 # Installation
 
 ```bash
-npm i --save webux-security
+npm i --save @studiowebux/security
 ```
 
 # What is covered ?
