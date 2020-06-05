@@ -1,108 +1,76 @@
 ## Introduction
 
-This module has 3 features :
+This module offers these features:
 
-1. Load express routes automatically using a JSON configuration.
-2. Load static routes automatically using a JSON configuration.
-3. Add custom express responses.
+1. Query parser (req.query), `initially made to work with Mongoose`
+2. Express Rate Limiter
+3. @hapi/joi validators
+4. body parser
+5. cookie parser
+6. cors
+7. Response Headers
+8. helmet
+9. compression
+10. x-powered-by
+11. trust proxy
 
 > This module is built to be use with Express.
 
-For more details (EN/FR) : <a href="https://github.com/studiowebux/webux-route/wiki" target="_blank">Wiki</a>
+For more details (EN/FR) : <a href="https://github.com/studiowebux/webux-security/wiki" target="_blank">Wiki</a>
 
 ## Installation
 
 ```bash
-npm install --save @studiowebux/route
+npm install --save @studiowebux/security
 ```
 
-[NPM](https://www.npmjs.com/package/@studiowebux/route)
+[NPM](https://www.npmjs.com/package/@studiowebux/security)
 
 ## Usage
 
 ## Configuration
 
-| Key       | Value                                                     | Description | More info |
-| --------- | --------------------------------------------------------- | ----------- | --------- |
-| routes    | RestAPI definition, see below for the structure.          |             |           |
-| resources | static resources definition, see below for the structure. |             |           |
+| Key          | Value                                                       | Description                  | More info                                          |
+| ------------ | ----------------------------------------------------------- | ---------------------------- | -------------------------------------------------- |
+| bodyParser   | `limit` and `extended`                                      |                              | https://www.npmjs.com/package/body-parser          |
+| cookieParser | `secret`                                                    |                              | https://www.npmjs.com/package/cookie-parser        |
+| cors         | `whitelist` the array of URLs authorized                    | Use `[]` to disable the cors | https://www.npmjs.com/package/cors                 |
+| server       | See below, The response headers and the proxy configuration |                              |                                                    |
+| rateLimiters | See below, An array of objects                              |                              | https://www.npmjs.com/package/express-rate-limiter |
 
 Example:
 
 ```javascript
 const opts = {
-  routes: {
-    "/": {
-      resources: {
-        "/": [
-          {
-            method: "get",
-            middlewares: [], // By default, this route is publicly available, you should create a middleware to protect this resource.
-            action: (req, res, next) => {
-              return res.success({
-                msg: "Welcome ! The Documentation is available here : /api/",
-              });
-            },
-          },
-        ],
-        "/healthcheck": [
-          {
-            method: "get",
-            middlewares: [], // By default, this route is publicly available, you should create a middleware to protect this resource.
-            action: (req, res, next) => {
-              return res.success({ msg: "Pong !" });
-            },
-          },
-        ],
-      },
-    },
-    "/user": {
-      resources: {
-        "/": [
-          {
-            method: "get",
-            middlewares: [isAuthenticated()],
-            action: require(path.join(__dirname, "actions", "user", "find"))
-              .route,
-          },
-          {
-            method: "post",
-            middlewares: [],
-            action: require(path.join(__dirname, "actions", "user", "create"))
-              .route,
-          },
-        ],
-        "/:id": [
-          {
-            method: "get",
-            middlewares: [isAuthenticated()],
-            action: require(path.join(__dirname, "actions", "user", "findOne"))
-              .route,
-          },
-          {
-            method: "put",
-            middlewares: [isAuthenticated()],
-            action: require(path.join(__dirname, "actions", "user", "update"))
-              .route,
-          },
-          {
-            method: "delete",
-            middlewares: [isAuthenticated()],
-            action: require(path.join(__dirname, "actions", "user", "remove"))
-              .route,
-          },
-        ],
-      },
-    },
+  bodyParser: {
+    limit: "1mb",
+    extended: false,
   },
-  resources: [
+  cookieParser: {
+    secret: process.env.COOKIE_SECRET || "CookieSecret",
+  },
+  cors: {
+    whitelist: ["https://webuxlab.com", "http://127.0.0.1"], // or [] to disable cors
+  },
+  server: {
+    trustProxy: true,
+    allowedMethods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+    allowedCredentials: false,
+    allowedHeaders:
+      "Origin, X-Requested-with, Accept, Authorization, Content-Type, Accept-Language",
+  },
+  rateLimiters: [
     {
-      path: "/public",
-      resource: path.join(__dirname, "public"),
+      name: "Authentication",
+      time: 3600, // blocked for 1 hour
+      maxReq: 3, // after 3 tries
+      pattern: "/auth", // The route prefix to apply this limiter
     },
     {
-      path: "/img",
-      resource: path.join(__dirname, "images"),
+      name: "Global",
+      time: 60, // blocked for 1 minute
+      maxReq: 5, // after 5 tries the requester will be blocked for 1 minute
+      pattern: "", // It applies globally
     },
   ],
 };
@@ -115,318 +83,479 @@ const opts = {
 Initialize the configurations globally.
 
 ```javascript
-const WebuxRoute = require("@studiowebux/route");
-const webuxRoute = new WebuxRoute(opts, console);
+const WebuxSecurity = require("@studiowebux/security");
+const Security = new WebuxSecurity(opts, console);
 ```
 
-The `opts` parameter is optional, You can skip the routes and resources definition and pass the configurations manually using the `LoadRoute` & `LoadStatic` function.
+The `opts` parameter is mandatory, it configures the security module.
 
 The `log` parameter allows to use a custom logger, by default it uses the console.
 
-#### LoadRoute(router, routes = null): Promise
+#### validators
 
-It loads the RestAPI routes automatically using a JSON configuration.
+This property has all `@hapi/joi` based validators attached.  
+To access a validator, `Security.validators.Body(...)`
 
-##### The JSON structure
+##### How to use a validator (Schema Definition)
 
-- The option must be an object.
-- The first object is the parent route
-  - Like `http://webuxlab.com/api/v1/healthcheck`, where the last `/` is the parent and `healthcheck` the specific route.
-- The parent route has one key named `resources`
-  - This object can have multiple specific routes
-    - Each specific route has 3 keys
-      - **method**: GET, POST, PATCH, DELETE, PUT, OPTIONS
-      - **middlewares**: An array of middlewares to use on the specific route, the function will be use in the same order.
-      - **action**: Can be the actual function using the express route definition (`(req, res, next)=>{...}`) or a require that export the route (like the user route).
-- To use the request parameter, simply use the `:` notation
+For more information, please read the official `@hapi/joi` [documentation](https://hapi.dev/module/joi/),
 
-Using the configuration provided by the module,
+###### Examples
+
+**Schemas**
 
 ```javascript
-const express = require("express");
-const app = express();
-const router = express.Router();
+const Joi = require("@hapi/joi");
 
-webuxRoute.LoadRoute(router);
+const Create = Joi.object()
+  .keys({
+    user: {
+      username: Joi.string().required(),
+      premium: Joi.boolean().required(),
+    },
+  })
+  .required();
 
-app.use("/", router);
+const Update = Joi.object({
+  user: {
+    premium: Joi.boolean().required(),
+  },
+}).required();
+
+const ID = Joi.string()
+  .pattern(/^[0-9]*$/)
+  .required();
+
+const Something = Joi.object({
+  items: Joi.array().required(),
+}).required();
 ```
 
-With the configuration in parameter,
+**Usage**
 
 ```javascript
-const routes = {
-  "/": {
-    resources: {
-      "/": [
-        {
-          method: "get",
-          middlewares: [], // By default, this route is publicly available, you should create a middleware to protect this resource.
-          action: (req, res, next) => {
-            return res.success({
-              msg: "Welcome ! The Documentation is available here : /api/",
-            });
-          },
-        },
-      ],
-      "/healthcheck": [
-        {
-          method: "get",
-          middlewares: [], // By default, this route is publicly available, you should create a middleware to protect this resource.
-          action: (req, res, next) => {
-            return res.success({ msg: "Pong !" });
-          },
-        },
-      ],
-    },
-  },
-  "/user": {
-    resources: {
-      "/:id": [
-        {
-          method: "put",
-          middlewares: [isAuthenticated()],
-          action: require(path.join(__dirname, "actions", "user", "update"))
-            .route,
-        },
-      ],
-    },
-  },
+app.post("/something", async (req, res) => {
+  await Security.validators
+    .Custom(Something, req.body)
+    .then((value) => {
+      return res.status(200).json({ msg: "Bonjour !" });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(400).json({ msg: "BAD_REQUEST", reason: err.message });
+    });
+});
+
+app.post(
+  "/account/:id",
+  Security.validators.Id(ID),
+  Security.validators.Body(Update),
+  (req, res) => {
+    console.info("Hello World !");
+    return res.status(200).json({ msg: "Bonjour !" });
+  }
+);
+```
+
+##### List of validators
+
+> Where the `...` is the Joi validator code.
+> These functions will return nothing if the data is valid.
+> Or a structured error using the `errorHandler` function.
+
+###### Body (req.body, errorHandler = Handler)
+
+`Body(Schema)(req, res, next)=>{...};`
+
+###### Id (req.params.id, errorHandler = Handler)
+
+`Id(Schema)(req, res, next)=>{...};`
+
+###### MongoID (req.params.id, errorHandler = Handler)
+
+`MongoID(Schema)(req, res, next)=>{...};`
+
+###### MongoIdOrURL (req.params.id_url, errorHandler = Handler)
+
+`MongoIdOrURL(Schema)(req, res, next)=>{...};`
+
+###### User (req.user, errorHandler = Handler)
+
+`User(Schema)(req, res, next)=>{...};`
+
+###### Headers (req.headers, errorHandler = Handler)
+
+`Headers(Schema)(req, res, next)=>{...};`
+
+###### Files (req.files, errorHandler = Handler)
+
+`Files(Schema)(req, res, next)=>{...};`
+
+###### Custom (object, errorHandler = Handler)
+
+`Custom(Schema, object);`
+
+##### Default errorHandler Function
+
+> You can override this function,
+
+```javascript
+(code, msg, extra, devMsg) => {
+  let error = new Error();
+
+  error.code = code || 500;
+  error.message = msg || "";
+  error.extra = extra || {};
+  error.devMessage = devMsg || "";
+
+  return error;
 };
-
-webuxRoute.LoadRoute(router, routes);
-app.use("/", router);
 ```
 
-The `routes` parameter is only used when you want to load a different configuration than the one present in the module configuration.In other words, it allows to use multiple configuration besides the global one.
-The `router` parameter is provided by Express.
+#### SetResponseHeader(app): Void
 
-#### LoadStatic(app, express, resources = null): Promise
-
-It loads Static resources routes automatically using a JSON configuration,
-
-##### The JSON structure
-
-- The option must be an array
-- each element has 2 keys.
-  - **path**: The external path to access the resources.
-  - **resource**: The path on the server where the resources are stored.
-
-##### Usage
-
-Using the configuration provided by the module,
-
-```javascript
-const express = require("express");
-const app = express();
-const webuxRoute = new WebuxRoute(opts, console);
-
-webuxRoute.LoadStatic(app, express);
-```
-
-With the configuration in parameter,
-
-```javascript
-const express = require("express");
-const app = express();
-const webuxRoute = new WebuxRoute();
-
-const resources = [
-  {
-    path: "/public",
-    resource: path.join(__dirname, "public"),
-  },
-  {
-    path: "/img",
-    resource: path.join(__dirname, "images"),
-  },
-];
-
-webuxRoute.LoadStatic(app, express, resources);
-```
-
-The `resources` parameter is only used when you want to load a different configuration than the one present in the module configuration.In other words, it allows to use multiple configuration besides the global one.
-The `app` & `express` parameters are provided by express.
-
-#### LoadResponse(app): Void
-
-It loads the custom responses and attaches them to the `res` object from Express.
+It loads the response headers using the `res.header(...)`
 
 ```javascript
 const express = require("express");
 const app = express();
 
-webuxRoute.LoadResponse(app);
+Security.SetResponseHeader(app);
 ```
 
-##### Custom responses Usage with _res_
+The `app` parameter is mandatory, it is used to configure the headers.
+
+#### SetGlobal(app): Void
+
+It configures:
+
+- The `compression`
+- The `trust proxy`
+- `Helmet`
+- The `x-powered-by`
 
 ```javascript
-app.get("/success", (req, res) => {
-  res.success({ message: "success" }, "success", "success");
-});
+const express = require("express");
+const app = express();
 
-app.get("/created", (req, res) => {
-  res.created({ message: "created" }, "created", "created");
-});
+Security.SetGlobal(app);
+```
 
-app.get("/updated", (req, res) => {
-  res.updated({ message: "updated" }, "updated", "updated");
-});
+The `app` parameter is mandatory, it is used to configure the modules.
 
-app.get("/deleted", (req, res) => {
-  res.deleted({ message: "deleted" }, "deleted", "deleted");
-});
+#### SetBodyParser(app): Void
 
-app.get("/forbidden", (req, res) => {
-  // msg, devMsg
-  res.forbidden();
-});
+It configures the body parser.
 
-app.get("/badrequest", (req, res) => {
-  // msg, devMsg
-  res.badRequest();
-});
+```javascript
+const express = require("express");
+const app = express();
 
-app.get("/servererror", (req, res) => {
-  // msg, devMsg
-  res.serverError();
-});
+Security.SetBodyParser(app);
+```
 
-app.get("/notFound", (req, res) => {
-  // msg, devMsg
-  res.notFound();
-});
+The `app` parameter is mandatory, it is used to configure the modules.
 
-app.get("/unprocessable", (req, res) => {
-  // msg, devMsg
-  res.unprocessable();
-});
+#### SetCookieParser(app): Void
 
-app.get("/custom", (req, res) => {
-  res.custom(200, { message: "Custom  response", user: "User Name" });
-});
+It configures the cookie parser.
+
+```javascript
+const express = require("express");
+const app = express();
+
+Security.SetCookieParser(app);
+```
+
+The `app` parameter is mandatory, it is used to configure the modules.
+
+#### SetCors(app): Void
+
+It configures the cors.
+
+> To disable all cors, in the option, specify : `[]`
+
+```javascript
+const express = require("express");
+const app = express();
+
+Security.SetCors(app);
+```
+
+The `app` parameter is mandatory, it is used to configure the modules.
+
+#### CreateRateLimiters(app): Void
+
+It configures the rate limiters
+
+```javascript
+const express = require("express");
+const app = express();
+
+Security.CreateRateLimiters(app);
+```
+
+The `app` parameter is mandatory, it is used to configure the modules.
+
+#### QueryParser(blacklist = [], defaultSelect = "", errorHandler = null): Void
+
+It parses the `req.query`, if there is blacklisted word present, it will return an error.  
+Otherwise, the idea behind this function is to facilitate the query with MongoDB.  
+But it can be use to parse the query only.
+
+```javascript
+let blacklist_fields = ["password", "birthday", "phoneNumber"];
+let defaultSelect = "username, email, fullname";
+
+Security.QueryParser(blacklist_fields, defaultSelect);
+```
+
+The `blacklist` parameter is optional
+The `defaultSelect` parameter is optional
+The `errorHandler` parameter is optional (it uses the default one by default)
+
+##### Example
+
+Using this code and this request, returns
+
+```javascript
+// http://localhost:1337/account?limit=5&sort=-username&skip=100
+app.get(
+  "/account",
+  Security.QueryParser(["password"], "username premium"),
+  (req, res) => {
+    console.log(req.query);
+    res.status(200).json({ query: req.query });
+  }
+);
+```
+
+Return:
+_http://localhost:1337/account?limit=5&sort=-username&skip=100_
+
+```javascript
+{
+    "query": {
+        "filter": {},
+        "limit": 5,
+        "sort": [
+            "-username"
+        ],
+        "skip": 100,
+        "projection": "username premium"
+    }
+}
+```
+
+_http://localhost:1337/account?limit=5&sort=-username&skip=100_&filter=username eq 'bonjour'\_
+
+```javascript
+{
+    "query": {
+        "filter": {
+            "username": {
+                "$eq": "bonjour"
+            }
+        },
+        "limit": 5,
+        "sort": [
+            "-username"
+        ],
+        "skip": null,
+        "projection": "username premium"
+    }
+}
+```
+
+_http://localhost:1337/account?limit=5&sort=-username&skip=100&filter=password eq 'something'_
+
+```javascript
+{
+    "code": 400,
+    "message": "INVALID_REQUEST",
+    "extra": {},
+    "devMessage": "Query may contains blacklisted items."
+}
 ```
 
 ## Quick start
 
 ### Complete example
 
-#### Step 1. Directories creation
+#### Step 1. Define Configuration
 
-| Répertoire | Description                                                                          |
-| ---------- | ------------------------------------------------------------------------------------ |
-| actions/\* | The application logic (See the `example/actions` directory to see all possibilities) |
-| images     | It stores the images                                                                 |
-| public     | It stores the public resources, like _html_ files and others                         |
-| config.js  | The routes and resources JSON configuration                                          |
-| index.js   | The server using ExpressJS                                                           |
-
-#### Step 2. Action example
-
-actions/user/find.js
+options.js
 
 ```javascript
-const route = async (req, res, next) => {
-  return res.success({ msg: "Find User", user: { fullname: "John Doe" } });
-};
-
-module.exports = { route };
-```
-
-#### Step 3. The configuration
-
-config.js
-
-```javascript
-const path = require("path");
-
-// Include the middlewares somehow...
-const isAuthenticated = () => {
-  return (req, res, next) => {
-    console.log("The user must be authenticated to execute the action...");
-    return next();
-  };
-};
-
 module.exports = {
-  routes: {
-    "/": {
-      resources: {
-        "/": [
-          {
-            method: "get",
-            middlewares: [], // By default, this route is publicly available, you should create a middleware to protect this resource.
-            action: (req, res, next) => {
-              return res.success({
-                msg: "Welcome ! The Documentation is available here : /api/",
-              });
-            },
-          },
-        ],
-        "/healthcheck": [
-          {
-            method: "get",
-            middlewares: [], // By default, this route is publicly available, you should create a middleware to protect this resource.
-            action: (req, res, next) => {
-              return res.success({ msg: "Pong !" });
-            },
-          },
-        ],
-      },
-    },
-    "/user": {
-      resources: {
-        "/": [
-          {
-            method: "get",
-            middlewares: [isAuthenticated()],
-            action: require(path.join(__dirname, "actions", "user", "find"))
-              .route,
-          },
-        ],
-      },
-    },
+  bodyParser: {
+    limit: "1mb",
+    extended: false,
   },
-  resources: [
+  cookieParser: {
+    secret: process.env.COOKIE_SECRET || "CookieSecretNotVerySecure...",
+  },
+  cors: {
+    whitelist: ["https://webuxlab.com", "http://127.0.0.1"], // or [] to disable cors
+  },
+  server: {
+    trustProxy: true,
+    allowedMethods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+    allowedCredentials: false,
+    allowedHeaders:
+      "Origin, X-Requested-with, Accept, Authorization, Content-Type, Accept-Language",
+  },
+  rateLimiters: [
     {
-      path: "/public",
-      resource: path.join(__dirname, "public"),
+      name: "Authentication",
+      time: 3600, // blocked for 1 hour
+      maxReq: 10, // after 10 tries
+      pattern: "/auth", // The route prefix to apply this limiter
     },
     {
-      path: "/img",
-      resource: path.join(__dirname, "images"),
+      name: "Global",
+      time: 60, // blocked for 1 minute
+      maxReq: 150, // after 5 tries the requester will be blocked for 1 minute
+      pattern: "", // It applies globally
     },
   ],
 };
 ```
 
-#### Step 4. Server File
+#### Step 2. Create schema validators
 
-index.js
+validators.js
 
 ```javascript
-const WebuxRoute = require("../src/index");
+const Joi = require("@hapi/joi");
+
+const Create = Joi.object()
+  .keys({
+    user: {
+      username: Joi.string().required(),
+      premium: Joi.boolean().required(),
+    },
+  })
+  .required();
+
+const Update = Joi.object({
+  user: {
+    premium: Joi.boolean().required(),
+  },
+}).required();
+
+const ID = Joi.string()
+  .pattern(/^[0-9]*$/)
+  .required();
+
+const Something = Joi.object({
+  items: Joi.array().required(),
+}).required();
+
+module.exports = {
+  Something,
+  ID,
+  Update,
+  Create,
+};
+```
+
+#### Step 5. Create app.js
+
+app.js
+
+```javascript
+const WebuxSecurity = require("@studiowebux/security");
 const express = require("express");
 const app = express();
-const router = express.Router();
-const options = require("./config");
 
-const webuxRoute = new WebuxRoute(options, console);
+const options = require("./options");
+const { Something, ID, Update, Create } = require("./validators");
 
-(async () => {
-  await webuxRoute.LoadResponse(app);
-  await webuxRoute.LoadRoute(router);
+module.exports = async function loadApp() {
+  const Security = new WebuxSecurity(options, console);
 
-  app.use("/", router);
+  Security.SetResponseHeader(app);
+  Security.SetBodyParser(app);
+  Security.SetCookieParser(app);
+  Security.SetCors(app);
+  Security.SetGlobal(app);
+  Security.CreateRateLimiters(app);
 
-  // must be added after load the REST API routes.
-  await webuxRoute.LoadStatic(app, express);
+  app.get("/", (req, res) => {
+    console.info("Hello World !");
+    return res.status(200).json({ msg: "Bonjour !" });
+  });
+
+  // http://localhost:1337/account?limit=5&sort=-username&skip=100
+  app.get(
+    "/account",
+    Security.QueryParser(["password"], "username premium"),
+    (req, res) => {
+      console.log(req.query);
+      res.status(200).json({ query: req.query });
+    }
+  );
+
+  app.post("/something", async (req, res) => {
+    await Security.validators
+      .Custom(Something, req.body)
+      .then((value) => {
+        return res.status(200).json({ msg: "Bonjour !" });
+      })
+      .catch((err) => {
+        console.error(err);
+        return res
+          .status(400)
+          .json({ msg: "BAD_REQUEST", reason: err.message });
+      });
+  });
+
+  app.post(
+    "/account/:id",
+    Security.validators.Id(ID),
+    Security.validators.Body(Update),
+    (req, res) => {
+      console.info("Hello World !");
+      return res.status(200).json({ msg: "Bonjour !" });
+    }
+  );
+
+  app.post("/account", Security.validators.Body(Create), (req, res) => {
+    console.info("Hello World !");
+    return res.status(200).json({ msg: "Bonjour !" });
+  });
+
+  app.post("/", (req, res) => {
+    console.info("Hello World !");
+    console.log(req.cookies);
+    return res.status(200).json({ msg: "Bonjour !" });
+  });
+
+  app.use("*", (error, req, res, next) => {
+    console.error(error);
+    res.status(error.code || 500).json(error || "An error occured");
+  });
 
   app.listen(1337, () => {
-    console.log("Server is listening on port 1337");
+    console.log("Server listening on port 1337");
   });
-})();
+};
+```
+
+#### Step 4. Create server.js
+
+server.js
+
+```javascript
+const loadApp = require("./app.js");
+
+try {
+  loadApp();
+} catch (e) {
+  console.error(e);
+  process.exit(1);
+}
 ```
 
 ## Videos and other resources
