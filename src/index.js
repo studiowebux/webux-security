@@ -80,11 +80,12 @@ class Security {
 
   /**
    * Configure the queryParser 'req.query' with express
+   * @static
    * @param {Array} blacklist An array of blacklisted elements, example, ["password", "refreshToken", ...]
    * @param {String} defaultSelect Default select, example, 'username creationDate ...'
    * @returns {Function} The express middleware function
    */
-  QueryParser(blacklist = [], defaultSelect = "", errorHandler = null) {
+  static QueryParser(blacklist = [], defaultSelect = "", errorHandler = null) {
     return query(blacklist, defaultSelect, errorHandler);
   }
 

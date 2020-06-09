@@ -299,6 +299,7 @@ The `app` parameter is mandatory, it is used to configure the modules.
 
 #### QueryParser(blacklist = [], defaultSelect = "", errorHandler = null): Void
 
+This method is `static`
 It parses the `req.query`, if there is blacklisted word present, it will return an error.  
 Otherwise, the idea behind this function is to facilitate the query with MongoDB.  
 But it can be use to parse the query only.
