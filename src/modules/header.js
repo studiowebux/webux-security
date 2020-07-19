@@ -5,8 +5,6 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-"use strict";
-
 /**
  * Configure the Response Header
  * @param {Object} options The configuration of the module, Mandatory
@@ -15,11 +13,11 @@
  * @return {VoidFunction} Return nothing.
  */
 module.exports = (options, app, log = console) => {
-  log.info(`\x1b[33mwebux-security - Set the response header\x1b[0m`);
+  log.info('\x1b[33mwebux-security - Set the response header\x1b[0m');
   app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Methods", options.allowedMethods);
-    res.header("Access-Control-Allow-Headers", options.allowedHeaders);
-    res.header("Access-Control-Allow-Credentials", options.allowedCredentials);
+    res.header('Access-Control-Allow-Methods', options.allowedMethods);
+    res.header('Access-Control-Allow-Headers', options.allowedHeaders);
+    res.header('Access-Control-Allow-Credentials', options.allowedCredentials);
     return next();
   });
 };

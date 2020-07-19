@@ -5,9 +5,7 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-"use strict";
-
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 
 /**
  * Initialize the body-parser
@@ -18,18 +16,18 @@ const bodyParser = require("body-parser");
  * @return {VoidFunction} Return nothing
  */
 module.exports = (options, app, log = console) => {
-  log.info(`\x1b[33mwebux-security - Configuring the body parser\x1b[0m`);
+  log.info('\x1b[33mwebux-security - Configuring the body parser\x1b[0m');
 
   app.use(
     bodyParser.json({
-      limit: options.limit || "1mb",
-    })
+      limit: options.limit || '1mb',
+    }),
   );
 
   app.use(
     bodyParser.urlencoded({
-      limit: options.limit || "1mb",
+      limit: options.limit || '1mb',
       extended: options.extended || false,
-    })
+    }),
   );
 };

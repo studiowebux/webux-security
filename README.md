@@ -16,15 +16,13 @@ This module offers these features:
 
 > This module is built to be use with Express.
 
-For more details (EN/FR) : <a href="https://github.com/studiowebux/webux-security/wiki" target="_blank">Wiki</a>
-
 ## Installation
 
 ```bash
 npm install --save @studiowebux/security
 ```
 
-[NPM](https://www.npmjs.com/package/@studiowebux/security)
+[npm @studiowebux/security](https://www.npmjs.com/package/@studiowebux/security)
 
 ## Usage
 

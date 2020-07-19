@@ -5,9 +5,7 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-"use strict";
-
-const rateLimit = require("express-rate-limit");
+const rateLimit = require('express-rate-limit');
 
 /**
  * Creates a new limiter.
@@ -17,20 +15,18 @@ const rateLimit = require("express-rate-limit");
  * @return {VoidFunction}
  */
 module.exports = (options, app, log = console) => {
-  log.info(`Creating rate limiter 'options.name'`);
+  log.info(`Creating rate limiter ${options.name}`);
 
-  let opts = {
+  const opts = {
     windowMs: options.time * 1000,
     max: options.maxReq,
   };
 
   // Check if the rule is applied globally
   // or to specific pattern
-  if (options.pattern && options.pattern !== "") {
-    opts.skip = (req) => {
-      // Skip this rule., if not in the url.
-      return !req.originalUrl.includes(options.pattern);
-    };
+  if (options.pattern && options.pattern !== '') {
+    // Skip this rule., if not in the url.
+    opts.skip = (req) => !req.originalUrl.includes(options.pattern);
   }
 
   app.use(rateLimit(opts));

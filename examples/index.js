@@ -1,8 +1,10 @@
-const WebuxSecurity = require("../src/index");
-const express = require("express");
+/* eslint-disable import/no-extraneous-dependencies */
+const express = require('express');
+const Joi = require('@hapi/joi');
+const WebuxSecurity = require('../src/index');
+
 const app = express();
-const options = require("./options");
-const Joi = require("@hapi/joi");
+const options = require('./options');
 
 const Create = Joi.object()
   .keys({
@@ -37,63 +39,61 @@ async function loadApp() {
   Security.SetGlobal(app);
   Security.CreateRateLimiters(app);
 
-  app.get("/", (req, res) => {
-    console.info("Hello World !");
-    return res.status(200).json({ msg: "Bonjour !" });
+  app.get('/', (req, res) => {
+    console.info('Hello World !');
+    return res.status(200).json({ msg: 'Bonjour !' });
   });
 
   // http://localhost:1337/account?limit=5&sort=-username&skip=100
   app.get(
-    "/account",
-    Security.QueryParser(["password"], "username premium"),
+    '/account',
+    WebuxSecurity.QueryParser(['password'], 'username premium'),
     (req, res) => {
       console.log(req.query);
       res.status(200).json({ query: req.query });
-    }
+    },
   );
 
-  app.post("/something", async (req, res) => {
-    await Security.validators
+  app.post('/something', (req, res) => {
+    Security.validators
       .Custom(Something, req.body)
-      .then((value) => {
-        return res.status(200).json({ msg: "Bonjour !" });
-      })
+      .then((value) => { res.status(200).json({ msg: 'Bonjour !', value }); })
       .catch((err) => {
         console.error(err);
         return res
           .status(400)
-          .json({ msg: "BAD_REQUEST", reason: err.message });
+          .json({ msg: 'BAD_REQUEST', reason: err.message });
       });
   });
 
   app.post(
-    "/account/:id",
+    '/account/:id',
     Security.validators.Id(ID),
     Security.validators.Body(Update),
     (req, res) => {
-      console.info("Hello World !");
-      return res.status(200).json({ msg: "Bonjour !" });
-    }
+      console.info('Hello World !');
+      return res.status(200).json({ msg: 'Bonjour !' });
+    },
   );
 
-  app.post("/account", Security.validators.Body(Create), (req, res) => {
-    console.info("Hello World !");
-    return res.status(200).json({ msg: "Bonjour !" });
+  app.post('/account', Security.validators.Body(Create), (req, res) => {
+    console.info('Hello World !');
+    return res.status(200).json({ msg: 'Bonjour !' });
   });
 
-  app.post("/", (req, res) => {
-    console.info("Hello World !");
+  app.post('/', (req, res) => {
+    console.info('Hello World !');
     console.log(req.cookies);
-    return res.status(200).json({ msg: "Bonjour !" });
+    return res.status(200).json({ msg: 'Bonjour !' });
   });
 
-  app.use("*", (error, req, res, next) => {
+  app.use('*', (error, req, res, next) => {
     console.error(error);
-    res.status(error.code || 500).json(error || "An error occured");
+    res.status(error.code || 500).json(error || 'An error occured');
   });
 
   app.listen(1337, () => {
-    console.log("Server listening on port 1337");
+    console.log('Server listening on port 1337');
   });
 }
 

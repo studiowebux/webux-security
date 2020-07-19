@@ -5,9 +5,7 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-"use strict";
-
-const Handler = require("../defaults/errorHandler");
+const Handler = require('../defaults/errorHandler');
 
 /**
  * Checks the body
@@ -15,24 +13,22 @@ const Handler = require("../defaults/errorHandler");
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const Body = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.body, {
-        allowUnknown: false,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "Body Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const Body = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.body, {
+      allowUnknown: false,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e.details,
+        { type: 'Body Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -41,24 +37,22 @@ const Body = (schema, errorHandler = Handler) => {
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const MongoID = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.params.id, {
-        allowUnknown: false,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "MongoID Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const MongoID = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.params.id, {
+      allowUnknown: false,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e.details,
+        { type: 'MongoID Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -67,24 +61,22 @@ const MongoID = (schema, errorHandler = Handler) => {
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const Id = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.params.id, {
-        allowUnknown: false,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "ID Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const Id = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.params.id, {
+      allowUnknown: false,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e.details,
+        { type: 'ID Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -93,24 +85,22 @@ const Id = (schema, errorHandler = Handler) => {
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const MongoIdOrURL = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.params.id_url, {
-        allowUnknown: false,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "MongoIDOrURL Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const MongoIdOrURL = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.params.id_url, {
+      allowUnknown: false,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e.details,
+        { type: 'MongoIDOrURL Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -119,24 +109,22 @@ const MongoIdOrURL = (schema, errorHandler = Handler) => {
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const User = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.user, {
-        allowUnknown: true,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "User Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const User = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.user, {
+      allowUnknown: true,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e.details,
+        { type: 'User Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -145,24 +133,22 @@ const User = (schema, errorHandler = Handler) => {
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const Headers = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.headers, {
-        allowUnknown: true,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "Headers Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const Headers = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.headers, {
+      allowUnknown: true,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e.details,
+        { type: 'Headers Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -171,24 +157,22 @@ const Headers = (schema, errorHandler = Handler) => {
  * @param {Function} errorHandler Custom ErrorHandler, optional
  * @return {Function} return a middleware function
  */
-const Files = (schema, errorHandler = Handler) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.files, {
-        allowUnknown: true,
-      });
-      return next();
-    } catch (e) {
-      return next(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e,
-          { type: "File Schema Validator" },
-          e
-        )
-      );
-    }
-  };
+const Files = (schema, errorHandler = Handler) => async (req, res, next) => {
+  try {
+    await schema.validateAsync(req.files, {
+      allowUnknown: true,
+    });
+    return next();
+  } catch (e) {
+    return next(
+      errorHandler(
+        400,
+        e.details && e.details[0] ? e.details[0].message : e,
+        { type: 'File Schema Validator' },
+        e,
+      ),
+    );
+  }
 };
 
 /**
@@ -199,23 +183,19 @@ const Files = (schema, errorHandler = Handler) => {
  * @return {Promise} return a promise
  */
 const Custom = (schema, object, errorHandler = Handler) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const value = await schema.validateAsync(object, {
-        allowUnknown: false,
-      });
-      return resolve(value);
-    } catch (e) {
-      return reject(
-        errorHandler(
-          400,
-          e.details && e.details[0] ? e.details[0].message : e.details,
-          { type: "Custom Object Schema Validator" },
-          e
-        )
-      );
-    }
-  });
+  try {
+    const value = schema.validateAsync(object, {
+      allowUnknown: false,
+    });
+    return Promise.resolve(value);
+  } catch (e) {
+    throw new Error(errorHandler(
+      400,
+      e.details && e.details[0] ? e.details[0].message : e.details,
+      { type: 'Custom Object Schema Validator' },
+      e,
+    ));
+  }
 };
 
 module.exports = {

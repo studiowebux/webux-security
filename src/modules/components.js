@@ -5,10 +5,8 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-"use strict";
-
-const helmet = require("helmet");
-const compression = require("compression");
+const helmet = require('helmet');
+const compression = require('compression');
 
 /**
  * Initialize all security modules.
@@ -19,11 +17,11 @@ const compression = require("compression");
  */
 module.exports = (options, app, log = console) => {
   log.info(
-    `\x1b[33mwebux-security - Initialize the security components\x1b[0m`
+    '\x1b[33mwebux-security - Initialize the security components\x1b[0m',
   );
   app.use(compression());
-  app.enable("trust proxy");
-  app.set("trust proxy", options.trustProxy || false);
+  app.enable('trust proxy');
+  app.set('trust proxy', options.trustProxy || false);
   app.use(helmet());
-  app.disable("x-powered-by");
+  app.disable('x-powered-by');
 };

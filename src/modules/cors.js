@@ -5,9 +5,7 @@
  * License: All rights reserved Studio Webux S.E.N.C 2015-Present
  */
 
-"use strict";
-
-const cors = require("cors");
+const cors = require('cors');
 
 /**
  * Configure the cors
@@ -18,30 +16,30 @@ const cors = require("cors");
  */
 module.exports = (whitelist, app, log = console) => {
   const corsOptions = {
-    origin: function (origin, callback) {
+    origin(origin, callback) {
       log.debug(whitelist);
-      log.debug("Request from : " + origin);
-      if (whitelist.indexOf(origin) !== -1) {
+      log.debug(`Request from : ${origin}`);
+      if (whitelist.includes(origin)) {
         return callback(null, true);
-      } else if (!origin) {
+      }
+      if (!origin) {
         log.warn(
-          `\x1b[31mwebux-security - No origin is set for the request.\x1b[0m`
+          '\x1b[31mwebux-security - No origin is set for the request.\x1b[0m',
         );
         return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS."));
       }
+      return callback(new Error('Not allowed by CORS.'));
     },
   };
 
   // Then pass the corsOptions
-  if (process.env.NODE_ENV === "production" || whitelist.length > 0) {
+  if (process.env.NODE_ENV === 'production' || whitelist.length > 0) {
     log.info(
-      `\x1b[33mwebux-security - CORS enabled. Allowed origins : ${whitelist}\x1b[0m`
+      `\x1b[33mwebux-security - CORS enabled. Allowed origins : ${whitelist}\x1b[0m`,
     );
     app.use(cors(corsOptions));
   } else {
-    log.warn(`\x1b[31mwebux-security - CORS disabled.\x1b[0m`);
+    log.warn('\x1b[31mwebux-security - CORS disabled.\x1b[0m');
     app.use(cors());
   }
 };
