@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Preparation') {
       steps {
-        sh 'git remote add prod https://github.com/studiowebux/webux-seecurity.git || true'
+        sh 'git remote add prod https://github.com/studiowebux/webux-security.git || true'
       }
     }
 
@@ -96,7 +96,7 @@ pipeline {
         }
         
         sh 'npm publish --access public'
-        mail(to: 'tommy@studiowebux.com', subject: 'Webux-seecurity - Published', body: 'Webux-seecurity has been published to production')
+        mail(to: 'tommy@studiowebux.com', subject: 'Webux-security - Published', body: 'Webux-security has been published to production')
       }
     }
 
